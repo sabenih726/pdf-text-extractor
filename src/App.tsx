@@ -1,8 +1,12 @@
 import React from 'react';
-import Home from './pages/Home';
+import PdfUploader from './components/PdfUploader';
 
 const App: React.FC = () => {
-  return <Home />;
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <PdfUploader />
+    </div>
+  );
 };
 
 export default App;
