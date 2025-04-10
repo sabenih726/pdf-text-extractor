@@ -1,21 +1,25 @@
-import React, { useState } from 'react';
-import { extractTextFromPDF } from '../utils/pdfUtils';
+import React from 'react';
 
-const PdfUploader: React.FC = () => {
-  const [text, setText] = useState<string>('');
+interface PdfUploaderProps {
+  onExtractData: (pdfFile: File) => void;
+}
 
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+const PdfUploader: React.FC<PdfUploaderProps> = ({ onExtractData }) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (file) {
-      const extractedText = await extractTextFromPDF(file);
-      setText(extractedText);
+      onExtractData(file);
     }
   };
 
   return (
-    <div className="p-4">
-      <input type="file" accept="application/pdf" onChange={handleFileChange} className="mb-4" />
-      <textarea className="w-full h-96 p-2 border rounded" value={text} readOnly />
+    <div className="mb-4">
+      <input
+        type="file"
+        accept="application/pdf"
+        onChange={handleFileChange}
+        className="p-2 border rounded"
+      />
     </div>
   );
 };
