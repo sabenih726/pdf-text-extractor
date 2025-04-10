@@ -1,39 +1,47 @@
 import React, { useState } from 'react';
-import { extractTextFromPDF, extractData } from '../utils/pdfUtils';
-import ResultTable from './ResultTable';
+import { extractTextFromPDF } from '../utils/pdfUtils';
 
 const PdfUploader: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
-  const [text, setText] = useState<string>('');
-  const [data, setData] = useState<Record<string, string>>({});
+  const [extractedText, setExtractedText] = useState<string>('');
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const uploadedFile = e.target.files ? e.target.files[0] : null;
-    if (uploadedFile) {
-      setFile(uploadedFile);
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = event.target.files ? event.target.files[0] : null;
+    if (selectedFile) {
+      setFile(selectedFile);
     }
   };
 
-  const handleUpload = async () => {
+  const handleExtractText = async () => {
     if (file) {
-      try {
-        const extractedText = await extractTextFromPDF(file);
-        setText(extractedText);
-
-        const extractedData = extractData(extractedText);
-        setData(extractedData);
-      } catch (error) {
-        console.error('Error extracting text from PDF:', error);
-      }
+      const text = await extractTextFromPDF(file);
+      setExtractedText(text);
     }
   };
 
   return (
-    <div>
-      <input type="file" accept=".pdf" onChange={handleFileChange} />
-      <button onClick={handleUpload}>Upload and Extract</button>
-      {text && <p>Extracted Text: {text}</p>}
-      {Object.keys(data).length > 0 && <ResultTable data={data} />}
+    <div className="p-6 max-w-md mx-auto">
+      <h1 className="text-2xl font-bold mb-4">Upload and Extract Text from PDF</h1>
+      <input
+        type="file"
+        accept="application/pdf"
+        onChange={handleFileChange}
+        className="mb-4 p-2 border rounded"
+      />
+      <button
+        onClick={handleExtractText}
+        className="w-full bg-blue-500 text-white p-2 rounded"
+      >
+        Extract Text
+      </button>
+      <div className="mt-6">
+        {extractedText && (
+          <div>
+            <h2 className="font-semibold">Extracted Text:</h2>
+            <pre className="mt-2 bg-gray-100 p-4 rounded">{extractedText}</pre>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
