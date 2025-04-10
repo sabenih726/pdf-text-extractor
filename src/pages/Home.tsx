@@ -1,11 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PdfUploader from '../components/PdfUploader';
+import ResultTable from '../components/ResultTable';
+import { extractDataFromPDF } from '../utils/pdfUtils';
 
 const Home: React.FC = () => {
+  const [extractedData, setExtractedData] = useState<any[]>([]);
+
+  const handleExtractData = async (pdfFile: File) => {
+    const data = await extractDataFromPDF(pdfFile);
+    setExtractedData(data);
+  };
+
   return (
-    <div className="max-w-4xl mx-auto py-10">
-      <h1 className="text-3xl font-bold mb-6 text-center">Ekstraksi Teks dari PDF</h1>
-      <PdfUploader />
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">PDF Data Extraction App</h1>
+
+      {/* Komponen PdfUploader untuk upload file */}
+      <PdfUploader onExtractData={handleExtractData} />
+
+      {/* Tabel hasil ekstraksi */}
+      {extractedData.length > 0 && <ResultTable data={extractedData} />}
     </div>
   );
 };
