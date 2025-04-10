@@ -1,30 +1,24 @@
 import React from 'react';
 
 interface ResultTableProps {
-  data: any[];
+  data: Record<string, string>;
 }
 
 const ResultTable: React.FC<ResultTableProps> = ({ data }) => {
   return (
-    <div className="mt-4">
-      <table className="min-w-full table-auto border-collapse">
+    <div className="overflow-x-auto">
+      <table className="min-w-full table-auto">
         <thead>
-          <tr className="bg-gray-100">
-            <th className="border px-4 py-2 text-left">Nama</th>
-            <th className="border px-4 py-2 text-left">Tempat Lahir</th>
-            <th className="border px-4 py-2 text-left">Tanggal Lahir</th>
-            <th className="border px-4 py-2 text-left">Nomor Paspor</th>
-            <th className="border px-4 py-2 text-left">Masa Berlaku</th>
+          <tr>
+            <th className="px-4 py-2 text-left">Field</th>
+            <th className="px-4 py-2 text-left">Value</th>
           </tr>
         </thead>
         <tbody>
-          {data.map((row, index) => (
-            <tr key={index} className="bg-white">
-              <td className="border px-4 py-2">{row.name}</td>
-              <td className="border px-4 py-2">{row.birthPlace}</td>
-              <td className="border px-4 py-2">{row.birthDate}</td>
-              <td className="border px-4 py-2">{row.passportNumber}</td>
-              <td className="border px-4 py-2">{row.passportExpiry}</td>
+          {Object.entries(data).map(([key, value]) => (
+            <tr key={key}>
+              <td className="border px-4 py-2">{key}</td>
+              <td className="border px-4 py-2">{value}</td>
             </tr>
           ))}
         </tbody>
