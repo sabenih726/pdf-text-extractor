@@ -1,6 +1,6 @@
 import * as pdfjsLib from 'pdfjs-dist';
 
-// Tentukan lokasi worker PDF.js
+// Tentukan lokasi worker PDF.js (versi terbaru)
 (pdfjsLib as any).GlobalWorkerOptions.workerSrc = 
   `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
@@ -10,11 +10,12 @@ export async function extractTextFromPDF(file: File): Promise<string> {
   const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
   let fullText = '';
 
+  // Ekstraksi teks dari setiap halaman PDF
   for (let i = 0; i < pdf.numPages; i++) {
     const page = await pdf.getPage(i + 1);
     const content = await page.getTextContent();
     const strings = content.items.map((item: any) => item.str);
-    fullText += strings.join(' ') + '\n';
+    fullText += strings.join(' ') + '\n'; // Gabungkan semua teks halaman
   }
 
   return fullText;
@@ -30,8 +31,12 @@ export function extractData(text: string): Record<string, string> {
     'Passport Expiry': ''
   };
 
-  const cleanText = (t: string) => t.replace(/[^A-Za-z\s]/g, '').trim().split(/\s+/).slice(0, 2).join(' ');
+  // Fungsi untuk membersihkan dan memformat teks
+  const cleanText = (t: string) => {
+    return t.replace(/[^A-Za-z\s]/g, '').trim().split(/\s+/).slice(0, 2).join(' ');
+  };
 
+  // Pisahkan teks per baris
   const lines = text.split('\n');
   for (let line of lines) {
     if (/Name|Nama/i.test(line)) {
