@@ -1,8 +1,10 @@
 import * as pdfjsLib from 'pdfjs-dist';
 
+// Tentukan lokasi worker PDF.js
 (pdfjsLib as any).GlobalWorkerOptions.workerSrc = 
   `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
+// Fungsi untuk mengekstrak teks dari PDF
 export async function extractTextFromPDF(file: File): Promise<string> {
   const pdfData = new Uint8Array(await file.arrayBuffer());
   const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
@@ -18,6 +20,7 @@ export async function extractTextFromPDF(file: File): Promise<string> {
   return fullText;
 }
 
+// Fungsi untuk mengekstrak data spesifik dari teks
 export function extractData(text: string): Record<string, string> {
   const data: Record<string, string> = {
     'Name': '',
