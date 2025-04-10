@@ -1,19 +1,53 @@
 import * as pdfjsLib from 'pdfjs-dist';
-import { GlobalWorkerOptions } from 'pdfjs-dist';
 
-GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js`;
+(pdfjsLib as any).GlobalWorkerOptions.workerSrc = 
+  `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
-export const extractTextFromPDF = async (file: File): Promise<string> => {
-  const arrayBuffer = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-  let text = '';
+export async function extractTextFromPDF(file: File): Promise<string> {
+  const pdfData = new Uint8Array(await file.arrayBuffer());
+  const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
+  let fullText = '';
 
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
+  for (let i = 0; i < pdf.numPages; i++) {
+    const page = await pdf.getPage(i + 1);
     const content = await page.getTextContent();
     const strings = content.items.map((item: any) => item.str);
-    text += strings.join(' ') + '\n\n';
+    fullText += strings.join(' ') + '\n';
   }
 
-  return text;
-};
+  return fullText;
+}
+
+export function extractData(text: string): Record<string, string> {
+  const data: Record<string, string> = {
+    'Name': '',
+    'Place of Birth': '',
+    'Date of Birth': '',
+    'Passport No': '',
+    'Passport Expiry': ''
+  };
+
+  const cleanText = (t: string) => t.replace(/[^A-Za-z\s]/g, '').trim().split(/\s+/).slice(0, 2).join(' ');
+
+  const lines = text.split('\n');
+  for (let line of lines) {
+    if (/Name|Nama/i.test(line)) {
+      const parts = line.split(':');
+      if (parts.length > 1) data['Name'] = cleanText(parts[1]);
+    } else if (/Place of Birth|Tempat Lahir/i.test(line)) {
+      const parts = line.split(':');
+      if (parts.length > 1) data['Place of Birth'] = cleanText(parts[1]);
+    } else if (/Date of Birth|Tanggal Lahir/i.test(line)) {
+      const match = line.match(/(\d{2})[-/](\d{2})[-/](\d{4})/);
+      if (match) data['Date of Birth'] = `${match[1]}/${match[2]}/${match[3]}`;
+    } else if (/Passport No/i.test(line)) {
+      const match = line.match(/\b([A-Z0-9]+)\b/);
+      if (match) data['Passport No'] = match[1];
+    } else if (/Passport Expiry/i.test(line)) {
+      const match = line.match(/(\d{2})[-/](\d{2})[-/](\d{4})/);
+      if (match) data['Passport Expiry'] = `${match[1]}/${match[2]}/${match[3]}`;
+    }
+  }
+
+  return data;
+}
