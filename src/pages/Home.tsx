@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import PdfUploader from '../components/PdfUploader';
 import ResultTable from '../components/ResultTable';
-import { extractDataFromPDF } from '../utils/pdfUtils';
+import { extractTextFromPDF, extractData } from '../utils/pdfUtils';
 
 const Home: React.FC = () => {
   const [extractedData, setExtractedData] = useState<any[]>([]);
 
   const handleExtractData = async (pdfFile: File) => {
-    const data = await extractDataFromPDF(pdfFile);
-    setExtractedData(data);
+    const text = await extractTextFromPDF(pdfFile);
+    const data = extractData(text);
+    setExtractedData([data]); // Menyimpan hasil ekstraksi data
   };
 
   return (
