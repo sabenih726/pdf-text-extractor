@@ -1,25 +1,39 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { extractTextFromPDF, extractData } from '../utils/pdfUtils';
+import ResultTable from './ResultTable';
 
-interface PdfUploaderProps {
-  onExtractData: (pdfFile: File) => void;
-}
+const PdfUploader: React.FC = () => {
+  const [file, setFile] = useState<File | null>(null);
+  const [text, setText] = useState<string>('');
+  const [data, setData] = useState<Record<string, string>>({});
 
-const PdfUploader: React.FC<PdfUploaderProps> = ({ onExtractData }) => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const uploadedFile = e.target.files ? e.target.files[0] : null;
+    if (uploadedFile) {
+      setFile(uploadedFile);
+    }
+  };
+
+  const handleUpload = async () => {
     if (file) {
-      onExtractData(file);
+      try {
+        const extractedText = await extractTextFromPDF(file);
+        setText(extractedText);
+
+        const extractedData = extractData(extractedText);
+        setData(extractedData);
+      } catch (error) {
+        console.error('Error extracting text from PDF:', error);
+      }
     }
   };
 
   return (
-    <div className="mb-4">
-      <input
-        type="file"
-        accept="application/pdf"
-        onChange={handleFileChange}
-        className="p-2 border rounded"
-      />
+    <div>
+      <input type="file" accept=".pdf" onChange={handleFileChange} />
+      <button onClick={handleUpload}>Upload and Extract</button>
+      {text && <p>Extracted Text: {text}</p>}
+      {Object.keys(data).length > 0 && <ResultTable data={data} />}
     </div>
   );
 };
