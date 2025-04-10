@@ -11,6 +11,12 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
+  "dependencies": {
+  "@vitejs/plugin-react": "^2.0.0",  // Pastikan ini ada
+  "react": "^18.2.0",
+  "react-dom": "^18.2.0",
+  "vite": "^4.3.0"
+  }
   "devDependencies": {
     "@types/react": "^18.0.37",
     "@types/react-dom": "^18.0.11",
